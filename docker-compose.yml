@@ -1,0 +1,46 @@
+version: '3'
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    ports:
+      - "9870:9870" # HDFS Web UI
+      - "9000:9000" # HDFS internal port
+    environment:
+      - CLUSTER_NAME=olist_cluster
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    volumes:
+      - ./hadoop_data/namenode:/hadoop/dfs/name
+      - ./dataset:/dataset # Maps your local CSVs directly into the container
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    environment:
+      - SERVICE_PRECONDITION=namenode:9870
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    volumes:
+      - ./hadoop_data/datanode:/hadoop/dfs/data
+
+  spark-master:
+    image: bde2020/spark-master:3.1.2-hadoop3.2
+    container_name: spark-master
+    ports:
+      - "8080:8080" # Spark Web UI
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    volumes:
+      - ./spark_scripts:/spark_scripts
+
+  spark-worker:
+    image: bde2020/spark-worker:3.1.2-hadoop3.2
+    container_name: spark-worker
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
