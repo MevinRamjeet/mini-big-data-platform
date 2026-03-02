@@ -1,0 +1,10 @@
+FROM spark:3.5.0-python3
+
+# Switch to root to install packages securely
+USER root
+
+# Debian-based images support standard pre-compiled wheels!
+RUN pip3 install --no-cache-dir numpy pandas
+
+# Switch back to the official Spark non-root user (UID 185)
+USER 185
