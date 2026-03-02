@@ -121,3 +121,12 @@ Build the required visuals:
 - **Scatter Plot:** Average Freight vs. Average Delay Days (Size = Volume).
 
 - **Text Box:** Prescriptive AI recommendation based on the PySpark ML model.
+
+### Screenshots
+![Alt text](readme_images/global_kpis.png)
+![Alt text](readme_images/monthly%20revenue.png)
+![Alt text](readme_images/top%20categories.png)
+![Alt text](readme_images/freight%20vs%20delay.png)
+![Alt text](readme_images/customer%20lifetime%20value%20by%20state.png)
+
+
