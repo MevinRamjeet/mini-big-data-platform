@@ -1,0 +1,79 @@
+# Mini Big Data Platform Report
+
+## Overview
+
+The Mini Big Data Platform is a containerized big data processing system designed to handle and analyze the Brazilian E-Commerce Public Dataset by Olist. This platform leverages industry-standard big data technologies including Apache Hadoop for distributed storage, Apache Spark for distributed computing, and MongoDB for NoSQL data management. The system processes over 100,000 e-commerce orders spanning from 2016 to 2018 across multiple Brazilian marketplaces. The dataset encompasses multiple dimensions including order status, pricing, payment methods, freight performance, customer location, product attributes, and customer reviews. This platform demonstrates a practical implementation of big data architecture principles in a containerized environment.
+
+## Architecture
+
+The Mini Big Data Platform employs a microservices architecture built on Docker containers for scalability and ease of deployment. The system comprises five core components:
+
+### Infrastructure Components
+
+1. **Hadoop NameNode**: Manages the distributed file system (HDFS) and serves as the central point for metadata management. Configured with CLUSTER_NAME=olist_cluster and exposes the HDFS Web UI on port 9870 for monitoring and management. Storage is allocated in ./hadoop_data/namenode for persistent namenode data.
+
+2. **Hadoop DataNode**: Acts as the data storage node within the HDFS ecosystem, storing actual data blocks and performing block creation, deletion, and replication upon instruction from the NameNode. Data is persisted in ./hadoop_data/datanode with SERVICE_PRECONDITION ensuring the NameNode is available before initialization.
+
+3. **Spark Master**: Serves as the driver for the Apache Spark cluster, coordinating job execution and resource allocation. Exposes the Spark Web UI on port 8080 for cluster monitoring and job tracking. Configured to connect to the HDFS namenode for distributed data access.
+
+4. **Spark Worker**: Executes the actual computational tasks assigned by the Spark Master. Connects to the master node via spark://spark-master:7077 and shares HDFS configuration for seamless data access.
+
+5. **MongoDB**: Provides a NoSQL database solution for storing processed results and metadata. Listens on the standard MongoDB port 27017, enabling both local and remote connections for data retrieval and storage.
+
+### Network Configuration
+
+All services communicate through Docker's internal network, with HDFS configured at hdfs://namenode:9000 as the central filesystem. External access is provided through exposed ports for web UIs and data access endpoints.
+
+## Features
+
+### Distributed Data Processing
+- **Hadoop HDFS Integration**: Distributed storage with automatic replication ensuring data reliability and fault tolerance
+- **Spark Cluster Computing**: Parallel processing capabilities enabling efficient analysis of large-scale datasets
+- **Containerized Deployment**: Docker-based architecture ensuring consistency across development, testing, and production environments
+
+### Data Management
+- **Multi-Dimensional Analysis**: Process e-commerce data across order status, pricing, payments, freight, customer location, and product attributes
+- **Large-Scale Dataset Handling**: Support for 100,000+ orders with scalable architecture
+- **NoSQL Storage**: MongoDB integration for flexible data model support and rapid data iteration
+
+### Monitoring and Debugging
+- **HDFS Web UI** (Port 9870): Real-time cluster health monitoring and file system navigation
+- **Spark Web UI** (Port 8080): Job tracking, stage analysis, and executor performance metrics
+- **Volume Persistence**: Local volume mapping for data durability and easy access
+
+### Scalability
+- **Horizontal Scaling**: Add additional Spark workers or DataNodes to increase processing capacity
+- **Load Distribution**: Automatic data distribution across DataNodes for balanced processing
+- **Flexible Resource Allocation**: Container-based design allows dynamic resource assignment
+
+## Implementation Details
+
+### Data Flow Architecture
+1. **Data Ingestion**: Brazilian E-Commerce datasets are loaded into HDFS through the mapped ./dataset volume on the NameNode
+2. **Distributed Processing**: Spark jobs read data from HDFS, perform transformations and aggregations in parallel across the cluster
+3. **Results Storage**: Processed results are written to MongoDB for easy retrieval and visualization
+4. **Monitoring**: Users can track job progress through Spark Web UI and cluster health through HDFS Web UI
+
+### Technology Stack
+- **Hadoop Version**: 3.2.1 with BDE2020 distribution
+- **Spark Version**: 3.1.2 compatible with Hadoop 3.2
+- **MongoDB**: Latest stable version
+- **Java**: Java 8 runtime for Hadoop and Spark compatibility
+- **Container Runtime**: Docker with docker-compose orchestration
+
+### Deployment Configuration
+- **Cluster Name**: olist_cluster
+- **Default Filesystem**: hdfs://namenode:9000
+- **Data Directory**: ./dataset (local CSV files mapped to container)
+- **Namenode Storage**: ./hadoop_data/namenode
+- **Datanode Storage**: ./hadoop_data/datanode
+- **Spark Scripts**: ./spark_scripts (mounted for job execution)
+
+### Service Interdependencies
+- DataNode requires NameNode to be running before initialization (SERVICE_PRECONDITION=namenode:9870)
+- Spark Worker discovers Master through SPARK_MASTER=spark://spark-master:7077
+- All services share consistent HDFS configuration for seamless data access
+
+## Conclusion
+
+The Mini Big Data Platform successfully demonstrates a production-grade big data architecture in a containerized environment. By combining Hadoop's distributed storage capabilities with Spark's distributed computing power and MongoDB's flexible data storage, the platform provides a comprehensive solution for analyzing large-scale e-commerce datasets. The containerized design ensures reproducibility and ease of deployment, making it an ideal foundation for learning big data technologies or extending with additional analytical capabilities. The platform's modular architecture allows for independent scaling of storage and compute resources, enabling efficient resource utilization. With built-in monitoring tools and persistent storage, this platform is well-suited for enterprise-grade big data analytics and serves as an excellent blueprint for implementing similar systems with different datasets or technologies.
